@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Clean Workspace') {
             steps {
-                sh 'rm -r projet-m1res25-26'
+                cleanWs()
             }
         }
         stage('Checkout SCM') {

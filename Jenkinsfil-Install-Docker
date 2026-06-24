@@ -1,5 +1,3 @@
-git branch: 'main', url: 'https://github.com/SamuelBABAKA/projet-m1res25-26.git'
-
 pipeline {
     agent any
        stages {

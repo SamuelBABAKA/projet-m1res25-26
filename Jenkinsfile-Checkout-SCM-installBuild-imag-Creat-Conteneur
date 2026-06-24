@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('cleanup') {
+            steps {
+                cleanWs()
+            }
+        }
+
+        stage('Checkout SCM') {
+            steps {
+                git branch: 'main',
+                    credentialsId: 'User_github',
+                    url: 'https://github.com/SamuelBABAKA/projet-m1res25-26.git'
+            }
+        }
+
+        stage('Installer Docker') {
+            steps {
+                sh 'sudo apt-get update -y'
+                sh 'sudo apt-get install apt-transport-https ca-certificates curl software-properties-common -y'
+                sh 'sudo apt-get install docker.io -y'
+                sh 'sudo chmod 666 /var/run/docker.sock'
+                sh 'sudo usermod -aG docker jenkins || true'
+                sh 'sudo usermod -aG docker root || true'
+                sh 'sudo systemctl restart docker.service'
+                sh 'sudo systemctl status docker.service --no-pager'
+                sh 'docker network ls'
+                sh 'docker image ls'
+            }
+        }
+
+        stage('build-image Ubuntu/nginx') {
+            steps {
+                script {
+                    sh 'docker image rm mynginx:latest || true'
+                    sh 'docker build -t mynginx .'
+                    sh 'docker image ls'
+                }
+            }
+        }
+
+        stage('Deploiement conteneur') {
+            steps {
+                script {
+                    sh 'docker stop monapp || true'
+                    sh 'docker rm monapp || true'
+                    sh 'docker run -d --name monapp --hostname monapp -p 8585:80 mynginx'
+                    sh 'docker ps'
+                }
+            }
+        }
+    }
+}

@@ -9,7 +9,7 @@ pipeline {
         }
         stage('Checkout SCM') {
             steps {
-                sh 'git clone https://github.com/SamuelBABAKA/projet-m1res25-26.git'
+                git branch: 'main', url: 'https://github.com/SamuelBABAKA/projet-m1res25-26.git'
             }
         }
     }

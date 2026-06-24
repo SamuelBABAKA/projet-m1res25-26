@@ -1,0 +1,32 @@
+git branch: 'main', url: 'https://github.com/SamuelBABAKA/projet-m1res25-26.git'
+
+pipeline {
+    agent any
+       stages {
+          stage('CleanUp de Workspace'){
+             steps {
+                cleanWs()
+             }
+         }
+        stage('Checkout SCM'){
+           steps {
+                 git branch: 'main', url: 'https://github.com/SamuelBABAKA/projet-m1res25-26.git'
+            }
+         }
+           stage('install Docker'){
+              steps {
+                  sh 'sudo apt autoremove docker.io docker-compose -y'
+                  sh 'sudo apt update'
+                  sh 'sudo apt install apt-transport-https ca-certificates curl software-properties-common -y'
+                  sh 'sudo apt install docker.io -y'
+                  sh 'sudo apt update'
+                  sh 'sudo chmod 666 /var/run/docker.sock'
+                  sh 'sudo usermod -aG docker $USER'
+                  sh 'sudo usermod -aG docker jenkins'
+                  sh 'sudo usermod -aG docker root'
+                  sh 'sudo systemctl restart docker.service'
+                  sh 'sudo systemctl status docker.service'
+              }
+          }
+     }
+}

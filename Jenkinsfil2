@@ -1,27 +1,31 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout(true)
+    }
+
     stages {
-        stage('CleanUp de Workspace') {
+        stage('Nettoyage de l espace de travail') {
             steps {
                 cleanWs()
             }
         }
 
-        stage('Checkout SCM') {
+        stage('Verifier le SCM') {
             steps {
-                git branch: 'principal', url: 'https://github.com/SamuelBABAKA/projet-m1res25-26.git'
+                git branch: 'main', url: 'https://github.com/SamuelBABAKA/projet-m1res25-26.git'
             }
         }
 
-        stage('Install Docker') {
+        stage('Installer Docker') {
             steps {
                 sh 'sudo apt-get update -y'
                 sh 'sudo apt-get install apt-transport-https ca-certificates curl software-properties-common -y'
                 sh 'sudo apt-get install docker.io -y'
                 sh 'sudo chmod 666 /var/run/docker.sock'
-                sh 'sudo usermod -aG docker jenkins'
-                sh 'sudo usermod -aG docker root'
+                sh 'sudo usermod -aG docker jenkins || true'
+                sh 'sudo usermod -aG docker root || true'
                 sh 'sudo systemctl restart docker.service'
                 sh 'sudo systemctl status docker.service --no-pager'
                 sh 'docker network ls'
@@ -29,7 +33,7 @@ pipeline {
             }
         }
 
-        stage('Create Container') {
+        stage('Creer un conteneur') {
             steps {
                 sh 'docker pull nginx:latest'
                 sh 'docker stop conttest || true'

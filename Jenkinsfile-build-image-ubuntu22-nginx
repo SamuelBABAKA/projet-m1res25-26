@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('cleanup') {
+            steps {
+                cleanWs()
+            }
+        }
+
+        stage('Checkout SCM') {
+            steps {
+                git branch: 'main',
+                    credentialsId: 'User_github',
+                    url: 'https://github.com/srcmed/projet-m1res25-26.git'
+            }
+        }
+
+        stage('build-image Ubuntu/nginx') {
+            steps {
+                script {
+                    sh 'docker build -t mynginx .'
+                    sh 'docker image ls'
+                }
+            }
+        }
+    }
+}

@@ -35,7 +35,7 @@ pipeline {
             steps {
                 script {
                     sh 'docker stop monapp || true'
-                    sh 'docker rm monapp || true
+                    sh 'docker rm monapp || true'
                     sh 'docker image rm mynginx:latest || true'
                     sh 'docker build -t mynginx .'
                     sh 'docker image ls'

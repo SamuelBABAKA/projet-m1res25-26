@@ -1,30 +1,47 @@
 pipeline {
     agent any
-       stages {
-          stage('CleanUp de Workspace'){
-             steps {
+
+    options {
+        skipDefaultCheckout(true)
+    }
+
+    stages {
+        stage('Nettoyage de l espace de travail') {
+            steps {
                 cleanWs()
-             }
-         }
-        stage('Checkout SCM'){
-           steps {
-                 git branch: 'main', url: 'https://github.com/SamuelBABAKA/projet-m1res25-26.git'
             }
-         }
-           stage('install Docker'){
-              steps {
-                  sudo apt remove $(dpkg --get-selections docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc | cut -f1 -y)
-                  sh 'sudo apt update'
-                  sh 'sudo apt install apt-transport-https ca-certificates curl software-properties-common -y'
-                  sh 'sudo apt install docker.io -y'
-                  sh 'sudo apt update'
-                  sh 'sudo chmod 666 /var/run/docker.sock'
-                  sh 'sudo usermod -aG docker $USER'
-                  sh 'sudo usermod -aG docker jenkins'
-                  sh 'sudo usermod -aG docker root'
-                  sh 'sudo systemctl restart docker.service'
-                  sh 'sudo systemctl status docker.service'
-              }
-          }
-     }
+        }
+
+        stage('Verifier le SCM') {
+            steps {
+                git branch: 'main', url: 'https://github.com/SamuelBABAKA/projet-m1res25-26.git'
+            }
+        }
+
+        stage('Installer Docker') {
+            steps {
+                sh 'sudo apt-get update -y'
+                sh 'sudo apt-get install apt-transport-https ca-certificates curl software-properties-common -y'
+                sh 'sudo apt-get install docker.io -y'
+                sh 'sudo chmod 666 /var/run/docker.sock'
+                sh 'sudo usermod -aG docker jenkins || true'
+                sh 'sudo usermod -aG docker root || true'
+                sh 'sudo systemctl restart docker.service'
+                sh 'sudo systemctl status docker.service --no-pager'
+                sh 'docker network ls'
+                sh 'docker image ls'
+            }
+        }
+
+        stage('Creer un conteneur') {
+            steps {
+                sh 'docker pull nginx:latest'
+                sh 'docker stop conttest || true'
+                sh 'docker rm conttest || true'
+                sh 'docker run -d --name conttest --hostname conttest -p 8081:80 nginx:latest'
+                sh 'docker ps'
+                sh 'curl -I http://localhost:8081'
+            }
+        }
+    }
 }

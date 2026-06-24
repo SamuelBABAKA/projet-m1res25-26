@@ -1,6 +1,10 @@
-FROM nginx:latest
+FROM ubuntu:22.04
 
-RUN apt-get update -y && apt-get install -y \
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Mise à jour + installation des paquets nécessaires
+RUN apt-get update && apt-get install -y \
+    nginx \
     openssh-server \
     iputils-ping \
     net-tools \
@@ -10,17 +14,23 @@ RUN apt-get update -y && apt-get install -y \
     sshpass \
     && rm -rf /var/lib/apt/lists/*
 
+# Préparation du service SSH
 RUN mkdir -p /var/run/sshd && ssh-keygen -A
 
+# Autoriser root à se connecter en SSH
 RUN echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config
 RUN echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config
 RUN echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config
 RUN echo 'Port 22' >> /etc/ssh/sshd_config
 
+# Définir le mot de passe root
 RUN echo "root:password" | chpasswd
 
-RUN echo "<h1>Image Docker Nginx + SSH construite avec Jenkins</h1>" > /usr/share/nginx/html/index.html
+# Page web nginx
+COPY website /var/www/html
 
+# Exposer HTTP + SSH
 EXPOSE 80 22
 
-CMD service ssh start && nginx -g "daemon off;"
+# Démarrage de SSH + Nginx
+CMD service nginx start && /usr/sbin/sshd -D
